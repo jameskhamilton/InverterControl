@@ -1,4 +1,4 @@
-import requests
+import http.client
 import json
 import asyncio
 import solis_functions as sf
@@ -12,7 +12,8 @@ keyId = securityData['keyId']
 secretKey = securityData['secretKey'].encode('utf-8') #bytes literal
 stationId = securityData['stationId']
 
-url = 'https://www.soliscloud.com:13333'
+url = 'www.soliscloud.com'
+port = "13333"
 resource = "/v1/api/inveterList"
 
 async def dataset() -> str:
@@ -23,7 +24,7 @@ async def dataset() -> str:
     Returns:
     - JSON string
     """
-    dttime = ""
+    dttime = None
     try: 
         dttime = sf.currentDateTime(0)
     except ValueError as e:
@@ -37,11 +38,13 @@ async def dataset() -> str:
                 "Authorization":sf.authValue(keyId, secretKey, body, resource)
                 }
 
-    req = url + resource
-    result = requests.post(req, data=body, headers=header)
+    conn = http.client.HTTPSConnection(url, port)
+    conn.request(sf.apiMethod(), resource, body, header)
+    result = conn.getresponse()
 
-    jsonData = result.json()
-    return jsonData
+    resultJSON = json.loads(result.read().decode("utf-8"))
+
+    return resultJSON
 
 async def datasetMain() -> list:
     """
@@ -81,3 +84,5 @@ async def datasetMain() -> list:
 
 records = asyncio.run(datasetMain())
 print(records)
+
+# asyncio.run(dataset())

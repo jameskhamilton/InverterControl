@@ -4,7 +4,8 @@ import hmac
 import base64
 from datetime import datetime, timezone
 
-apiMethod = 'POST'
+def apiMethod() -> str:
+    return 'POST'
 
 def contentType() -> str:
     return 'application/json'
@@ -16,7 +17,7 @@ def currentDateTime(format: int) -> str:
     - 1 (int) to return the update format
     """
     now = datetime.now(timezone.utc)
-    dttime = ""
+    dttime = None
     if format == 0:
         dttime = now.strftime("%a, %d %b %Y %H:%M:%S GMT")
     elif format == 1:
@@ -43,13 +44,13 @@ def authValue(keyIdValue: str, secretKeyValue:str, bodyValue: str, resourceValue
     Returns:
     - authentication string
     """
-    dttime = ""
+    dttime = None
     try: 
         dttime = currentDateTime(0)
     except ValueError as e:
         print(e)
 
-    encryptStr = (apiMethod + "\n"
+    encryptStr = (apiMethod() + "\n"
         + base64Hash(bodyValue) + "\n"
         + contentType() + "\n"
         + dttime + "\n"

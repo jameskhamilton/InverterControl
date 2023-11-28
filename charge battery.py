@@ -1,4 +1,4 @@
-import requests
+import http.client
 import json
 import asyncio
 import solis_functions as sf
@@ -15,14 +15,15 @@ username = securityData['username']
 inverterSn = securityData['inverterSn']
 inverterId = securityData['inverterId']
 
-url = 'https://www.soliscloud.com:13333'
+url = 'www.soliscloud.com'
+port = '13333'
 controlResource = '/v2/api/control'
 loginResource = '/v2/api/login'
 
-chargeStart = "00:00"
-chargeEnd = "00:00"
-dischargeStart = "00:00"
-dischargeEnd = "00:00"
+chargeStart = '00:00'
+chargeEnd = '00:00'
+dischargeStart = '00:00'
+dischargeEnd = '00:00'
 
 async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretKeyValue:str) -> str:
     """
@@ -42,10 +43,11 @@ async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretK
         "Authorization":sf.authValue(keyIdValue, secretKeyValue, body, loginResource)
         }
     
-    req = url + loginResource
-    result = requests.post(req, data=body, headers=header)
+    conn = http.client.HTTPSConnection(url, port)
+    conn.request(sf.apiMethod(), loginResource, body, header)
+    result = conn.getresponse()
 
-    resultJSON = result.json()
+    resultJSON = json.loads(result.read().decode("utf-8"))
 
     return resultJSON["csrfToken"]
 
@@ -88,10 +90,14 @@ async def controlMain(function: int) -> str:
                 "Token":token
                 }
 
-    req = url + controlResource
-    result = requests.post(req, data=body, headers=header)
+    conn = http.client.HTTPSConnection(url, port)
+    conn.request(sf.apiMethod(), controlResource, body, header)
+    result = conn.getresponse()
 
-    print(json.dumps(result.json(), indent=2, sort_keys=True))
+    resultJSON = json.loads(result.read().decode("utf-8"))
+
+    print(json.dumps(resultJSON, indent=2, sort_keys=True))
+    
 try:
     asyncio.run(controlMain(0))
 except ValueError as e:
