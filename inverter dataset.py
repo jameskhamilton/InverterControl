@@ -11,7 +11,6 @@ keyId = securityData['keyId']
 secretKey = securityData['secretKey'].encode('utf-8') #bytes literal
 stationId = securityData['stationId']
 
-
 url = 'https://www.soliscloud.com:13333'
 resource = "/v1/api/inveterList"
 

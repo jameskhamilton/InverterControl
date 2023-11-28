@@ -26,7 +26,8 @@ dischargeEnd = "00:00"
 
 async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretKeyValue:str) -> str:
     """
-    Returns - login token
+    Returns:
+    - Login token
     """
     body = f'{{"userInfo":"{usernameValue}","passWord":"{sf.hexMD5(passwordValue)}"}}'
 
@@ -43,17 +44,20 @@ async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretK
 
     return resultJSON["csrfToken"]
 
-async def main(function: int) -> str: #returns the json result of the control request
+async def main(function: int) -> str:
     """
     Parameters:
     - 0 (int) updates the charge settings with times passed in global variable
     - 1 (int) updates the inverter time to current datetime
+    
+    Returns:
+    - JSON result from the web request
     """
     if function == 0:
-        # set the charge datetimes (works)
+        # set the charge datetimes
         body = f'{{"inverterId":"{inverterId}","cid":"103","value":"50,50,{chargeStart},{chargeEnd},{dischargeStart},{dischargeEnd},50,50,00:00,00:00,00:00,00:00,50,50,00:00,00:00,00:00,00:00"}}'
     else:
-        # set the time (works)
+        # set the inverter time
         body = f'{{"inverterId":"{inverterId}","cid":56,"value":"{sf.currentDateTime(1)}"}}'
 
     token = await login(username, password, keyId, secretKey)
@@ -70,7 +74,6 @@ async def main(function: int) -> str: #returns the json result of the control re
     req = url + controlResource
     result = requests.post(req, data=body, headers=header)
 
-    print(json.dumps(result.json(),indent=2, sort_keys=True))
-
+    print(json.dumps(result.json(), indent=2, sort_keys=True))
 
 asyncio.run(main(0))
