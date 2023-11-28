@@ -77,7 +77,7 @@ async def solisAPICall(resourceValue: str, bodyValue: str, headerValue: str) -> 
         response = conn.getresponse()
         data = response.read().decode('utf-8')
         if response.code >= 400:
-            print(f'Error: {response.code} - {resultJSON}')
+            print(f'Error: {response.code} - {data}')
         else:
             return json.loads(data) 
     except http.client.HTTPException as e:
