@@ -2,17 +2,20 @@ import asyncio
 import json
 import http.client
 import base64
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+import re
 
 filePath = 'C:\\test\\octopusSecurity.json'
-now = datetime.now(timezone.utc)
-
 with open(filePath, 'r') as file:
     securityData = json.load(file)
 
 apiKey = securityData['apiKey']
 accountNumber = securityData['accountNumber']
-url = f'https://api.octopus.energy/v1/accounts/{accountNumber}/'
+tarrifType = 'agile'
+
+now = datetime.now(timezone.utc)
+tomorrow = now + timedelta(days=1)
+tomorrowFormatted = tomorrow.strftime('%Y-%m-%d')
 
 def parseDatetime(datetimeString: str) -> datetime:
     """
@@ -66,6 +69,7 @@ async def apiCall(url: str, apiKey: str = None) -> json:
     finally:
         conn.close()
 
+url = f'https://api.octopus.energy/v1/accounts/{accountNumber}/'
 resultJSON = asyncio.run(apiCall(url, apiKey))
 
 properties = resultJSON['properties']
@@ -108,26 +112,28 @@ filteredSet.update(
     for item in metersList
     if item.get('Tariff Valid From') <= now
     and (item.get('Tariff Valid To') is None or item.get('Tariff Valid To') >= now)
-    and 'agile' in item.get('Tariff Code', '').lower() #agile tarrif
+    and tarrifType.lower() in item.get('Tariff Code', '').lower() #agile tarrif
     and not item.get('Export Meter', False) #import meter
 )
 
 if len(filteredSet) > 1:
     raise IndexError(f'The tarrif list has more codes than expected: \n {filteredSet}')
 
-tariffCode = list(filteredSet)[0]
+tarrifCode = list(filteredSet)[0]
 
-print(tariffCode)
+print(tarrifCode)
 
-url = ('https://api.octopus.energy/v1/products/AGILE-FLEX-22-11-25/' + 
-         'electricity-tariffs/E-1R-AGILE-FLEX-22-11-25-N/standard-unit-rates/' + 
-         '?period_from=2023-11-28T15:00Z&period_to=2023-11-28T15:30Z')
+# split the string based on known prefixes
+parts = tarrifCode.split('-')
+# find the index of "AGILE"
+agileIndex = parts.index(tarrifType.upper())
+# extract the relevant parts to exclude the last value
+product = '-'.join(parts[agileIndex:]).rsplit('-', 1)[0]
+
+if not(product):
+    raise IndexError(f'Pattern not found to extract the product from the tarrif code: \n {tarrifCode}')
+
+url = f'https://api.octopus.energy/v1/products/{product}/electricity-tariffs/{tarrifCode}/standard-unit-rates/?period_from={tomorrowFormatted}T00:00Z&period_to={tomorrowFormatted}T23:59Z'
 resultJSON = asyncio.run(apiCall(url))
 
 print(json.dumps(resultJSON, indent=2, sort_keys=True))
-
-# url = 'https://api.octopus.energy/v1/products'
-# r = requests.get(url)
-# output_dict = r.json()
-
-# print(json.dumps(output_dict, indent=2, sort_keys=True))
