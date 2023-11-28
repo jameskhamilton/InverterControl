@@ -31,9 +31,14 @@ async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretK
     """
     body = f'{{"userInfo":"{usernameValue}","passWord":"{sf.hexMD5(passwordValue)}"}}'
 
+    try: 
+        dttime = sf.currentDateTime(0)
+    except ValueError as e:
+        print(e)
+
     header = { "Content-MD5":sf.base64Hash(body),
         "Content-Type":sf.contentType(),
-        "Date":sf.currentDateTime(0),
+        "Date":dttime,
         "Authorization":sf.authValue(keyIdValue, secretKeyValue, body, loginResource)
         }
     
@@ -44,7 +49,7 @@ async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretK
 
     return resultJSON["csrfToken"]
 
-async def main(function: int) -> str:
+async def controlMain(function: int) -> str:
     """
     Parameters:
     - 0 (int) updates the charge settings with times passed in global variable
@@ -56,17 +61,29 @@ async def main(function: int) -> str:
     if function == 0:
         # set the charge datetimes
         body = f'{{"inverterId":"{inverterId}","cid":"103","value":"50,50,{chargeStart},{chargeEnd},{dischargeStart},{dischargeEnd},50,50,00:00,00:00,00:00,00:00,50,50,00:00,00:00,00:00,00:00"}}'
-    else:
+    elif function == 1:
         # set the inverter time
-        body = f'{{"inverterId":"{inverterId}","cid":56,"value":"{sf.currentDateTime(1)}"}}'
+        dttime = None
+        try: 
+            dttime = sf.currentDateTime(1)
+        except ValueError as e:
+            print(e)
+
+        body = f'{{"inverterId":"{inverterId}","cid":56,"value":"{dttime}"}}'
+    else:
+        raise ValueError(f"Incorrect (int) value passed to main(): {function}\nExpected values are 0,1")
 
     token = await login(username, password, keyId, secretKey)
 
-    print(body)
+    dttime = None
+    try: 
+        dttime = sf.currentDateTime(0)
+    except ValueError as e:
+        print(e)
 
     header = { "Content-MD5":sf.base64Hash(body),
                 "Content-Type":sf.contentType(),
-                "Date":sf.currentDateTime(0),
+                "Date":dttime,
                 "Authorization":sf.authValue(keyId, secretKey, body, controlResource),
                 "Token":token
                 }
@@ -75,5 +92,7 @@ async def main(function: int) -> str:
     result = requests.post(req, data=body, headers=header)
 
     print(json.dumps(result.json(), indent=2, sort_keys=True))
-
-asyncio.run(main(0))
+try:
+    asyncio.run(controlMain(0))
+except ValueError as e:
+    print(e)

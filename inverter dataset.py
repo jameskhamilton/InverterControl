@@ -23,11 +23,17 @@ async def dataset() -> str:
     Returns:
     - JSON string
     """
+    dttime = ""
+    try: 
+        dttime = sf.currentDateTime(0)
+    except ValueError as e:
+        print(e)
+
     body = f'{{"stationId":"{stationId}"}}'
 
     header = { "Content-MD5":sf.base64Hash(body),
                 "Content-Type":sf.contentType(),
-                "Date":sf.currentDateTime(0),
+                "Date":dttime,
                 "Authorization":sf.authValue(keyId, secretKey, body, resource)
                 }
 
@@ -37,7 +43,7 @@ async def dataset() -> str:
     jsonData = result.json()
     return jsonData
 
-async def main() -> list:
+async def datasetMain() -> list:
     """
     Returns:
     - list containing
@@ -73,5 +79,5 @@ async def main() -> list:
 
     return records
 
-records = asyncio.run(main())
+records = asyncio.run(datasetMain())
 print(records)

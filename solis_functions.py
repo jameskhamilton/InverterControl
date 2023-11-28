@@ -16,10 +16,13 @@ def currentDateTime(format: int) -> str:
     - 1 (int) to return the update format
     """
     now = datetime.now(timezone.utc)
+    dttime = ""
     if format == 0:
         dttime = now.strftime("%a, %d %b %Y %H:%M:%S GMT")
-    else:
+    elif format == 1:
         dttime = now.strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        raise ValueError("Incorrect (int) value passed to currentDateTime(): {format}\nExpected values are 0,1")
     return dttime
 
 def base64Hash(bodyValue: str) -> str:
@@ -35,11 +38,21 @@ def hmacEncrypt(secretKeyValue: str, encryptStrValue: str) -> str:
     sign = base64.b64encode(h.digest()).decode('utf-8')
     return sign
 
-def authValue(keyIdValue: str, secretKeyValue:str, bodyValue: str, resourceValue: str) -> str: #returns authentication string
+def authValue(keyIdValue: str, secretKeyValue:str, bodyValue: str, resourceValue: str) -> str:
+    """
+    Returns:
+    - authentication string
+    """
+    dttime = ""
+    try: 
+        dttime = currentDateTime(0)
+    except ValueError as e:
+        print(e)
+
     encryptStr = (apiMethod + "\n"
         + base64Hash(bodyValue) + "\n"
         + contentType() + "\n"
-        + currentDateTime(0) + "\n"
+        + dttime + "\n"
         + resourceValue)
     auth = "API " + keyIdValue + ":" + hmacEncrypt(secretKeyValue, encryptStr)
     return auth
