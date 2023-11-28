@@ -84,9 +84,9 @@ async def controlMain(functionValue: int) -> str:
                 "Token":token
                 }
 
-    resultJSON = await sf.solisAPICall(controlResource, body, header)  
-
+    resultJSON = await sf.solisAPICall(controlResource, body, header)
     print(json.dumps(resultJSON, indent=2, sort_keys=True))
+    return resultJSON
     
 try:
     asyncio.run(controlMain(0))
