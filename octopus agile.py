@@ -1,18 +1,32 @@
-import requests 
-import pandas as pd
+import asyncio
 import json
 import http.client
 import base64
+from datetime import datetime, timezone
 
 filePath = 'C:\\test\\octopusSecurity.json'
+now = datetime.now(timezone.utc)
 
 with open(filePath, 'r') as file:
     securityData = json.load(file)
 
 apiKey = securityData['apiKey']
 accountNumber = securityData['accountNumber']
+url = f'https://api.octopus.energy/v1/accounts/{accountNumber}/'
 
-def apiCall(url, apiKey):
+def parseDatetime(datetimeString):
+    
+    if datetimeString is not None:
+        try:
+            return datetime.strptime(datetimeString, "%Y-%m-%dT%H:%M:%S%z")
+        except ValueError:
+            pass
+        
+        raise ValueError('Unsupported datetime format')
+    else:
+        return None
+
+async def apiCall(url: str, apiKey: str) -> str:
     authHeader = 'Basic ' + base64.b64encode(apiKey.encode('utf-8')).decode('utf-8')
     headers = {'Authorization': authHeader,}
 
@@ -30,19 +44,65 @@ def apiCall(url, apiKey):
         if response.status >= 400:
             print(f'Error: {response.status} - {data}')
         else:
-            return data
+            return json.loads(data)
     except http.client.HTTPException as e:
         print(f'Error: {e}')
     finally:
         conn.close()
 
-url = f'https://api.octopus.energy/v1/accounts/{accountNumber}/'
-result = apiCall(url, apiKey)
+resultJSON = asyncio.run(apiCall(url, apiKey))
 
-resultJSON = json.loads(result)
+#print(json.dumps(resultJSON, indent=2, sort_keys=True))
+properties = resultJSON['properties']
 
-print(json.dumps(resultJSON, indent=2, sort_keys=True))
+metersList = []
 
+for propertyData in properties:
+    propertyId = propertyData['id']
+    
+    for meterPoint in propertyData['electricity_meter_points']:
+        mpan = meterPoint['mpan']
+        export = meterPoint['is_export']
+        
+        for meter in meterPoint['meters']:
+            serialNumber = meter['serial_number']
+            agreements = meterPoint['agreements']
+            
+            for agreement in agreements:
+                tariffCode = agreement['tariff_code']
+                validFrom = agreement['valid_from']
+                validTo = agreement['valid_to']
+                
+                validFrom = parseDatetime(validFrom)
+                validTo = parseDatetime(validTo)
+        
+                metersList.append({
+                    'Property Id': propertyId,
+                    'MPAN': mpan,
+                    'Serial Number': serialNumber,
+                    'Tariff Code': tariffCode,
+                    'Tariff Valid From':validFrom,
+                    'Tariff Valid To': validTo,
+                    'Export Meter': export
+                })
+
+filteredSet = set()
+
+filteredSet.update(
+    item['Tariff Code']
+    for item in metersList
+    if item.get('Tariff Valid From') <= now
+    and (item.get('Tariff Valid To') is None or item.get('Tariff Valid To') >= now)
+    and 'agile' in item.get('Tariff Code', '').lower()
+    and not item.get('Export Meter', False)
+)
+
+if len(filteredSet) > 1:
+    raise IndexError(f'The tarrif list has more tarrif codes than expected: \n {filteredSet}')
+
+tariffCode = list(filteredSet)[0]
+
+print(tariffCode)
 
 # url = ('https://api.octopus.energy/v1/products/AGILE-FLEX-22-11-25/' + 
 #          'electricity-tariffs/E-1R-AGILE-FLEX-22-11-25-N/standard-unit-rates/' + 
