@@ -1,11 +1,6 @@
-import hashlib
-from hashlib import sha1
-import hmac
-import base64
-from datetime import datetime
-from datetime import timezone
 import requests
 import json
+import solis_functions as sf
 
 filePath = 'C:\\test\\security.json'
 
@@ -16,33 +11,16 @@ keyId = securityData['keyId']
 secretKey = securityData['secretKey'].encode('utf-8') #bytes literal
 stationId = securityData['stationId']
 
-method = "POST"
-now = datetime.now(timezone.utc)
-dttime = now.strftime("%a, %d %b %Y %H:%M:%S GMT")
-contentType = "application/json"
+
 url = 'https://www.soliscloud.com:13333'
 resource = "/v1/api/inveterList"
 
 body = f'{{"stationId":"{stationId}"}}'
 
-contentMD5 = base64.b64encode(hashlib.md5(body.encode('utf-8')).digest()).decode('utf-8')
-
-encryptStr = (method + "\n"
-    + contentMD5 + "\n"
-    + contentType + "\n"
-    + dttime + "\n"
-    + resource)
-
-h = hmac.new(secretKey, msg=encryptStr.encode('utf-8'), digestmod=hashlib.sha1)
-
-sign = base64.b64encode(h.digest())
-
-auth = "API " + keyId + ":" + sign.decode('utf-8')
-
-header = { "Content-MD5":contentMD5,
-            "Content-Type":contentType,
-            "Date":dttime,
-            "Authorization":auth
+header = { "Content-MD5":sf.base64Hash(body),
+            "Content-Type":sf.contentType(),
+            "Date":sf.currentDateTime(0),
+            "Authorization":sf.authValue(keyId, secretKey, body, resource)
             }
 
 req = url + resource

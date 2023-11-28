@@ -1,12 +1,7 @@
-import hashlib
-from hashlib import sha1
-import hmac
-import base64
-from datetime import datetime
-from datetime import timezone
 import requests
 import json
 import asyncio
+import solis_functions as sf
 
 filePath = 'C:\\test\\security.json'
 
@@ -20,47 +15,20 @@ username = securityData['username']
 inverterSn = securityData['inverterSn']
 inverterId = securityData['inverterId']
 
-method = "POST"
-now = datetime.now(timezone.utc)
-dttime = now.strftime("%a, %d %b %Y %H:%M:%S GMT")
-dttimeUpdate = now.strftime("%Y-%m-%d %H:%M:%S")
-contentType = "application/json"
-
 url = 'https://www.soliscloud.com:13333'
 controlResource = '/v2/api/control'
 loginResource = '/v2/api/login'
 
-def base64Hash(bodyValue: str) -> str:
-    hashValue = base64.b64encode(hashlib.md5(bodyValue.encode('utf-8')).digest()).decode('utf-8')
-    return hashValue
+async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretKeyValue:str) -> str:
+    """
+    Returns - login token
+    """
+    body = f'{{"userInfo":"{usernameValue}","passWord":"{sf.hexMD5(passwordValue)}"}}'
 
-def hexMD5(passwordValue: str) -> str:
-    hexValue = hashlib.md5(passwordValue.encode('utf-8')).hexdigest()
-    return hexValue
-
-def hmacEncrypt(secretKeyValue: str, encryptStrValue: str) -> str:
-    h = hmac.new(secretKeyValue, msg=encryptStrValue.encode('utf-8'), digestmod=hashlib.sha1)
-    sign = base64.b64encode(h.digest()).decode('utf-8')
-    return sign
-
-def authValue(keyIdValue: str, secretKeyValue:str, bodyValue: str, resourceValue: str) -> str: #returns authentication string
-    encryptStr = (method + "\n"
-        + base64Hash(bodyValue) + "\n"
-        + contentType + "\n"
-        + dttime + "\n"
-        + resourceValue)
-
-    auth = "API " + keyIdValue + ":" + hmacEncrypt(secretKeyValue, encryptStr)
-
-    return auth
-
-async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretKeyValue:str) -> str: #returns login token
-    body = f'{{"userInfo":"{usernameValue}","passWord":"{hexMD5(passwordValue)}"}}'
-
-    header = { "Content-MD5":base64Hash(body),
-        "Content-Type":contentType,
-        "Date":dttime,
-        "Authorization":authValue(keyIdValue, secretKeyValue, body, loginResource)
+    header = { "Content-MD5":sf.base64Hash(body),
+        "Content-Type":sf.contentType(),
+        "Date":sf.currentDateTime(0),
+        "Authorization":sf.authValue(keyIdValue, secretKeyValue, body, loginResource)
         }
     
     req = url + loginResource
@@ -73,6 +41,7 @@ async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretK
 async def main() -> str: #returns the json result of the control request
     
     # set the time (works)
+    # dttimeUpdate = sf.currentDateTime(1)
     # body = f'{{"inverterId":"{inverterId}","cid":56,"value":"{dttimeUpdate}"}}'
     #
 
@@ -84,10 +53,10 @@ async def main() -> str: #returns the json result of the control request
     print(body)
     print(token)
 
-    header = { "Content-MD5":base64Hash(body),
-                "Content-Type":contentType,
-                "Date":dttime,
-                "Authorization":authValue(keyId, secretKey, body, controlResource),
+    header = { "Content-MD5":sf.base64Hash(body),
+                "Content-Type":sf.contentType(),
+                "Date":sf.currentDateTime(0),
+                "Authorization":sf.authValue(keyId, secretKey, body, controlResource),
                 "Token":token
                 }
 
