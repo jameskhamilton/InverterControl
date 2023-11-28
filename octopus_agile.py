@@ -14,8 +14,14 @@ apiKey = securityData['apiKey']
 accountNumber = securityData['accountNumber']
 url = f'https://api.octopus.energy/v1/accounts/{accountNumber}/'
 
-def parseDatetime(datetimeString):
-    
+def parseDatetime(datetimeString: str) -> datetime:
+    """
+    Parameter:
+    - datetime value as a string
+
+    Returns:
+    - datetime value yyyy-mm-dd hh:mm:ss z
+    """
     if datetimeString is not None:
         try:
             return datetime.strptime(datetimeString, "%Y-%m-%dT%H:%M:%S%z")
@@ -26,10 +32,15 @@ def parseDatetime(datetimeString):
     else:
         return None
 
-async def apiCall(url: str, apiKey: str) -> str:
-    authHeader = 'Basic ' + base64.b64encode(apiKey.encode('utf-8')).decode('utf-8')
-    headers = {'Authorization': authHeader,}
+async def apiCall(url: str, apiKey: str = None) -> json:
+    """
+    Parameter:
+    - url
+    - api key (optional - when included this builds the Authorization string, otherwise no Authorization is passed)
 
+    Returns:
+    - JSON dataset
+    """
     # Parse the URL to extract the hostname and path
     urlParts = http.client.urlsplit(url)
     hostname = urlParts.hostname
@@ -38,7 +49,12 @@ async def apiCall(url: str, apiKey: str) -> str:
     conn = http.client.HTTPSConnection(hostname)
 
     try:
-        conn.request('GET', path, headers=headers)
+        if apiKey is None:
+            conn.request('GET', url)
+        else:
+            authHeader = 'Basic ' + base64.b64encode(apiKey.encode('utf-8')).decode('utf-8')
+            headers = {'Authorization': authHeader,}
+            conn.request('GET', path, headers=headers)
         response = conn.getresponse()
         data = response.read().decode('utf-8')
         if response.status >= 400:
@@ -52,7 +68,6 @@ async def apiCall(url: str, apiKey: str) -> str:
 
 resultJSON = asyncio.run(apiCall(url, apiKey))
 
-#print(json.dumps(resultJSON, indent=2, sort_keys=True))
 properties = resultJSON['properties']
 
 metersList = []
@@ -93,24 +108,23 @@ filteredSet.update(
     for item in metersList
     if item.get('Tariff Valid From') <= now
     and (item.get('Tariff Valid To') is None or item.get('Tariff Valid To') >= now)
-    and 'agile' in item.get('Tariff Code', '').lower()
-    and not item.get('Export Meter', False)
+    and 'agile' in item.get('Tariff Code', '').lower() #agile tarrif
+    and not item.get('Export Meter', False) #import meter
 )
 
 if len(filteredSet) > 1:
-    raise IndexError(f'The tarrif list has more tarrif codes than expected: \n {filteredSet}')
+    raise IndexError(f'The tarrif list has more codes than expected: \n {filteredSet}')
 
 tariffCode = list(filteredSet)[0]
 
 print(tariffCode)
 
-# url = ('https://api.octopus.energy/v1/products/AGILE-FLEX-22-11-25/' + 
-#          'electricity-tariffs/E-1R-AGILE-FLEX-22-11-25-N/standard-unit-rates/' + 
-#          '?period_from=2023-11-28T15:00Z&period_to=2023-11-28T15:30Z')
-# r = requests.get(url)
-# output_dict = r.json()
+url = ('https://api.octopus.energy/v1/products/AGILE-FLEX-22-11-25/' + 
+         'electricity-tariffs/E-1R-AGILE-FLEX-22-11-25-N/standard-unit-rates/' + 
+         '?period_from=2023-11-28T15:00Z&period_to=2023-11-28T15:30Z')
+resultJSON = asyncio.run(apiCall(url))
 
-#print(json.dumps(output_dict, indent=2, sort_keys=True))
+print(json.dumps(resultJSON, indent=2, sort_keys=True))
 
 # url = 'https://api.octopus.energy/v1/products'
 # r = requests.get(url)

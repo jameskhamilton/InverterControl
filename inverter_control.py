@@ -45,7 +45,7 @@ async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretK
 
     return resultJSON["csrfToken"]
 
-async def controlMain(functionValue: int) -> str:
+async def controlMain(functionValue: int) -> json:
     """
     Parameters:
     - 0 (int) updates the charge settings with times passed in global variable

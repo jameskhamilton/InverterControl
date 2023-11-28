@@ -16,7 +16,7 @@ url = 'www.soliscloud.com'
 port = '13333'
 resource = '/v1/api/inveterList'
 
-async def dataset() -> str:
+async def dataset() -> json:
     """
     Purpose:
     - makes API call to obtain the full JSON result from inverterList

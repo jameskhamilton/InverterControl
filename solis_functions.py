@@ -61,7 +61,7 @@ def authValue(keyIdValue: str, secretKeyValue:str, bodyValue: str, resourceValue
     auth = "API " + keyIdValue + ":" + hmacEncrypt(secretKeyValue, encryptStr)
     return auth
 
-async def solisAPICall(resourceValue: str, bodyValue: str, headerValue: str) -> str:
+async def solisAPICall(resourceValue: str, bodyValue: str, headerValue: str) -> json:
     """
     Parameter:
     - resource path
