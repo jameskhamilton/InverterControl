@@ -19,6 +19,11 @@ url = 'https://www.soliscloud.com:13333'
 controlResource = '/v2/api/control'
 loginResource = '/v2/api/login'
 
+chargeStart = "00:00"
+chargeEnd = "00:00"
+dischargeStart = "00:00"
+dischargeEnd = "00:00"
+
 async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretKeyValue:str) -> str:
     """
     Returns - login token
@@ -38,20 +43,22 @@ async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretK
 
     return resultJSON["csrfToken"]
 
-async def main() -> str: #returns the json result of the control request
-    
-    # set the time (works)
-    # dttimeUpdate = sf.currentDateTime(1)
-    # body = f'{{"inverterId":"{inverterId}","cid":56,"value":"{dttimeUpdate}"}}'
-    #
-
-    # set the charge datetimes (works)
-    body = f'{{"inverterId":"{inverterId}","cid":"103","value":"50,50,00:00,00:00,00:00,00:00,50,50,00:00,00:00,00:00,00:00,50,50,00:00,00:00,00:00,00:00"}}'
+async def main(function: int) -> str: #returns the json result of the control request
+    """
+    Parameters:
+    - 0 (int) updates the charge settings with times passed in global variable
+    - 1 (int) updates the inverter time to current datetime
+    """
+    if function == 0:
+        # set the charge datetimes (works)
+        body = f'{{"inverterId":"{inverterId}","cid":"103","value":"50,50,{chargeStart},{chargeEnd},{dischargeStart},{dischargeEnd},50,50,00:00,00:00,00:00,00:00,50,50,00:00,00:00,00:00,00:00"}}'
+    else:
+        # set the time (works)
+        body = f'{{"inverterId":"{inverterId}","cid":56,"value":"{sf.currentDateTime(1)}"}}'
 
     token = await login(username, password, keyId, secretKey)
 
     print(body)
-    print(token)
 
     header = { "Content-MD5":sf.base64Hash(body),
                 "Content-Type":sf.contentType(),
@@ -66,4 +73,4 @@ async def main() -> str: #returns the json result of the control request
     print(json.dumps(result.json(),indent=2, sort_keys=True))
 
 
-asyncio.run(main())
+asyncio.run(main(0))
