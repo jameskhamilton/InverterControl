@@ -38,11 +38,7 @@ async def dataset() -> str:
                 "Authorization":sf.authValue(keyId, secretKey, body, resource)
                 }
 
-    conn = http.client.HTTPSConnection(url, port)
-    conn.request(sf.apiMethod(), resource, body, header)
-    result = conn.getresponse()
-
-    resultJSON = json.loads(result.read().decode("utf-8"))
+    resultJSON = await sf.solisAPICall(resource, body, header)
 
     return resultJSON
 

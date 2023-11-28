@@ -4,7 +4,6 @@ import json
 import http.client
 import base64
 
-
 filePath = 'C:\\test\\octopusSecurity.json'
 
 with open(filePath, 'r') as file:
