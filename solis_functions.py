@@ -8,9 +8,7 @@ import json
 
 url = 'www.soliscloud.com'
 port = '13333'
-
-def apiMethod() -> str:
-    return 'POST'
+apiMethod = 'POST'
 
 def contentType() -> str:
     return 'application/json'
@@ -55,7 +53,7 @@ def authValue(keyIdValue: str, secretKeyValue:str, bodyValue: str, resourceValue
     except ValueError as e:
         print(e)
 
-    encryptStr = (apiMethod() + "\n"
+    encryptStr = (apiMethod + "\n"
         + base64Hash(bodyValue) + "\n"
         + contentType() + "\n"
         + dttime + "\n"
@@ -75,7 +73,7 @@ async def solisAPICall(resourceValue: str, bodyValue: str, headerValue: str) -> 
     """
     try:
         conn = http.client.HTTPSConnection(url, port)
-        conn.request(apiMethod(), resourceValue, bodyValue, headerValue)
+        conn.request(apiMethod, resourceValue, bodyValue, headerValue)
         response = conn.getresponse()
         resultJSON = json.loads(response.read().decode("utf-8")) 
         if response.code >= 400:
