@@ -84,5 +84,3 @@ async def datasetMain() -> list:
 
 records = asyncio.run(datasetMain())
 print(records)
-
-# asyncio.run(dataset())
