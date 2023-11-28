@@ -3,6 +3,11 @@ from hashlib import sha1
 import hmac
 import base64
 from datetime import datetime, timezone
+import http.client
+import json
+
+url = 'www.soliscloud.com'
+port = '13333'
 
 def apiMethod() -> str:
     return 'POST'
@@ -57,3 +62,27 @@ def authValue(keyIdValue: str, secretKeyValue:str, bodyValue: str, resourceValue
         + resourceValue)
     auth = "API " + keyIdValue + ":" + hmacEncrypt(secretKeyValue, encryptStr)
     return auth
+
+async def solisAPICall(resourceValue: str, bodyValue: str, headerValue: str) -> str:
+    """
+    Parameter:
+    - resource path
+    - http request body
+    - http request header
+
+    Returns:
+    - JSON string
+    """
+    try:
+        conn = http.client.HTTPSConnection(url, port)
+        conn.request(apiMethod(), resourceValue, bodyValue, headerValue)
+        response = conn.getresponse()
+        resultJSON = json.loads(response.read().decode("utf-8")) 
+        if response.code >= 400:
+            print(f'Error: {response.code} - {resultJSON}')
+        else:
+            return resultJSON 
+    except http.client.HTTPException as e:
+        print(f'Error: {e}')
+    finally:
+        conn.close()

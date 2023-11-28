@@ -1,4 +1,4 @@
-import http.client
+
 import json
 import asyncio
 import solis_functions as sf
@@ -15,13 +15,11 @@ username = securityData['username']
 inverterSn = securityData['inverterSn']
 inverterId = securityData['inverterId']
 
-url = 'www.soliscloud.com'
-port = '13333'
 controlResource = '/v2/api/control'
 loginResource = '/v2/api/login'
 
-chargeStart = '00:00'
-chargeEnd = '00:00'
+chargeStart = '01:00'
+chargeEnd = '05:00'
 dischargeStart = '00:00'
 dischargeEnd = '00:00'
 
@@ -42,16 +40,12 @@ async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretK
         "Date":dttime,
         "Authorization":sf.authValue(keyIdValue, secretKeyValue, body, loginResource)
         }
-    
-    conn = http.client.HTTPSConnection(url, port)
-    conn.request(sf.apiMethod(), loginResource, body, header)
-    result = conn.getresponse()
 
-    resultJSON = json.loads(result.read().decode("utf-8"))
+    resultJSON = await sf.solisAPICall(loginResource, body, header)
 
     return resultJSON["csrfToken"]
 
-async def controlMain(function: int) -> str:
+async def controlMain(functionValue: int) -> str:
     """
     Parameters:
     - 0 (int) updates the charge settings with times passed in global variable
@@ -60,10 +54,10 @@ async def controlMain(function: int) -> str:
     Returns:
     - JSON result from the web request
     """
-    if function == 0:
+    if functionValue == 0:
         # set the charge datetimes
         body = f'{{"inverterId":"{inverterId}","cid":"103","value":"50,50,{chargeStart},{chargeEnd},{dischargeStart},{dischargeEnd},50,50,00:00,00:00,00:00,00:00,50,50,00:00,00:00,00:00,00:00"}}'
-    elif function == 1:
+    elif functionValue == 1:
         # set the inverter time
         dttime = None
         try: 
@@ -90,11 +84,7 @@ async def controlMain(function: int) -> str:
                 "Token":token
                 }
 
-    conn = http.client.HTTPSConnection(url, port)
-    conn.request(sf.apiMethod(), controlResource, body, header)
-    result = conn.getresponse()
-
-    resultJSON = json.loads(result.read().decode("utf-8"))
+    resultJSON = await sf.solisAPICall(controlResource, body, header)  
 
     print(json.dumps(resultJSON, indent=2, sort_keys=True))
     
