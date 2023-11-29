@@ -68,7 +68,15 @@ async def apiCall(url: str, apiKey: str = None) -> json:
     finally:
         conn.close()
 
-def parseTarrifDataset(jsonValue: json) -> list:
+def parseTarrifDataset(jsonValue: json) -> dict:
+    """
+    Parameter:
+    - takes the json result from Octopus account call
+    - json includes the past and current products held
+
+    Returns:
+    - a dict containing products held and when they were held
+    """
     properties = jsonValue['properties']
     metersList = []
 
@@ -104,6 +112,15 @@ def parseTarrifDataset(jsonValue: json) -> list:
     return metersList
 
 def parseAgileCode(datasetValue: list) -> str:
+    """
+    Parameter:
+    - dict of products held and when they were held
+
+    Returns:
+    - a filtered list for current products with AGILE in the name
+    - the result should be 1 value and throws an error otherwise
+    - assuming you only have 1 meter with 1 agile tarrif
+    """
     filteredSet = set()
     filteredSet.update(
         item['Tariff Code']
@@ -120,6 +137,13 @@ def parseAgileCode(datasetValue: list) -> str:
         return list(filteredSet)[0]
 
 def parseProductCode(tarrifCodeValue: str) -> str:
+    """
+    Parameter:
+    - string with the AGILE tarrif code
+
+    Returns:
+    - the agile tarrif product code which doesn't contain regional values
+    """
     # split the string based on known prefixes
     parts = tarrifCodeValue.split('-')
     # find the index of "AGILE"
