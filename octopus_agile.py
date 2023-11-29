@@ -14,7 +14,7 @@ tarrifType = 'agile'
 
 now = datetime.now(timezone.utc)
 
-def parseDatetime(datetimeString: str) -> datetime:
+def parseDatetime(datetimeValue: str) -> datetime:
     """
     Parameter:
     - datetime value as a string
@@ -22,16 +22,16 @@ def parseDatetime(datetimeString: str) -> datetime:
     Returns:
     - datetime value yyyy-mm-dd hh:mm:ss z
     """
-    if datetimeString is None:
+    if datetimeValue is None:
         return None
     else:
         try:
-            return datetime.strptime(datetimeString, "%Y-%m-%dT%H:%M:%S%z")
+            return datetime.strptime(datetimeValue, "%Y-%m-%dT%H:%M:%S%z")
         except ValueError:
             pass
-        raise ValueError(f'Unsupported datetime format: {datetimeString}')
+        raise ValueError(f'Unsupported datetime format: {datetimeValue}')
 
-async def apiCall(url: str, apiKey: str = None) -> json:
+async def apiCall(urlValue: str, apiKeyValue: str = None) -> json:
     """
     Parameter:
     - url
@@ -41,17 +41,17 @@ async def apiCall(url: str, apiKey: str = None) -> json:
     - JSON dataset
     """
     # Parse the URL to extract the hostname and path
-    urlParts = http.client.urlsplit(url)
+    urlParts = http.client.urlsplit(urlValue)
     hostname = urlParts.hostname
     path = urlParts.path
 
     conn = http.client.HTTPSConnection(hostname)
 
     try:
-        if apiKey is None:
-            conn.request('GET', url)
+        if apiKeyValue is None:
+            conn.request('GET', urlValue)
         else:
-            authHeader = 'Basic ' + base64.b64encode(apiKey.encode('utf-8')).decode('utf-8')
+            authHeader = 'Basic ' + base64.b64encode(apiKeyValue.encode('utf-8')).decode('utf-8')
             headers = {'Authorization': authHeader,}
             conn.request('GET', path, headers=headers)
 

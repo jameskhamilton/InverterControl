@@ -18,8 +18,8 @@ inverterId = securityData['inverterId']
 controlResource = '/v2/api/control'
 loginResource = '/v2/api/login'
 
-chargeStart = '01:00'
-chargeEnd = '05:00'
+chargeStart = '00:00'
+chargeEnd = '06:00'
 dischargeStart = '00:00'
 dischargeEnd = '00:00'
 
