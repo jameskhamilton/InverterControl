@@ -22,11 +22,14 @@ def parseDatetime(datetimeString: str) -> datetime:
     Returns:
     - datetime value yyyy-mm-dd hh:mm:ss z
     """
-    try:
-        return datetime.strptime(datetimeString, "%Y-%m-%dT%H:%M:%S%z")
-    except ValueError:
-        pass
-    raise ValueError(f'Unsupported datetime format: {datetimeString}')
+    if datetimeString is None:
+        return None
+    else:
+        try:
+            return datetime.strptime(datetimeString, "%Y-%m-%dT%H:%M:%S%z")
+        except ValueError:
+            pass
+        raise ValueError(f'Unsupported datetime format: {datetimeString}')
 
 async def apiCall(url: str, apiKey: str = None) -> json:
     """
@@ -100,7 +103,7 @@ def parseTarrifDataset(jsonValue: json) -> list:
 
     return metersList
 
-def agileTarrif(datasetValue: list) -> str:
+def parseAgileCode(datasetValue: list) -> str:
     filteredSet = set()
     filteredSet.update(
         item['Tariff Code']
@@ -116,7 +119,7 @@ def agileTarrif(datasetValue: list) -> str:
     else:
         return list(filteredSet)[0]
 
-def productCode(tarrifCodeValue: str) -> str:
+def parseProductCode(tarrifCodeValue: str) -> str:
     # split the string based on known prefixes
     parts = tarrifCodeValue.split('-')
     # find the index of "AGILE"
@@ -129,25 +132,28 @@ def productCode(tarrifCodeValue: str) -> str:
     else:
         return product
 
-async def mainOctopusDataset() -> json:
+async def mainReturnRates() -> json:
     tomorrow = now + timedelta(days=1)
     tomorrowFormatted = tomorrow.strftime('%Y-%m-%d')
 
     url = f'https://api.octopus.energy/v1/accounts/{accountNumber}/'
-    tarrifsDataset = await asyncio.run(apiCall(url, apiKey))
+    tarrifsDataset = await apiCall(url, apiKey)
 
-    # tarrifList = parseTarrifDataset(tarrifsDataset)
+    tarrifList = parseTarrifDataset(tarrifsDataset)
+    
+    try:
+        tarrifCode = parseAgileCode(tarrifList)
+    except IndexError as e:
+        print(e)
+    try:
+        product = parseProductCode(tarrifCode)
+    except IndexError as e:
+        print(e)
 
-    # tarrifCode = agileTarrif(tarrifList)
+    url = f'https://api.octopus.energy/v1/products/{product}/electricity-tariffs/{tarrifCode}/standard-unit-rates/?period_from={tomorrowFormatted}T00:00Z&period_to={tomorrowFormatted}T23:59Z'
+    agileDataset = await apiCall(url)
 
-    # product = productCode(tarrifCode)
+    print(json.dumps(agileDataset, indent=2, sort_keys=True))
+    return agileDataset
 
-    # url = f'https://api.octopus.energy/v1/products/{product}/electricity-tariffs/{tarrifCode}/standard-unit-rates/?period_from={tomorrowFormatted}T00:00Z&period_to={tomorrowFormatted}T23:59Z'
-    # agileDataset = asyncio.run(apiCall(url))
-
-    # print(json.dumps(agileDataset, indent=2, sort_keys=True))
-    # return agileDataset
-
-    print(tarrifsDataset)
-
-asyncio.run(mainOctopusDataset())
+asyncio.run(mainReturnRates())
