@@ -4,9 +4,9 @@ import octopus_functions as of
 from datetime import datetime, timezone, timedelta
 
 apiKey, accountNumber = of.secrets()
-now = datetime.now(timezone.utc)
 
 async def mainReturnRates() -> json:
+    now = datetime.now(timezone.utc)
     tomorrow = now + timedelta(days=1)
     tomorrowFormatted = tomorrow.strftime('%Y-%m-%d')
 
