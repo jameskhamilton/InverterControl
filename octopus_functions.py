@@ -1,8 +1,7 @@
-import asyncio
 import json
 import http.client
 import base64
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 
 tarrifType = 'agile'
 

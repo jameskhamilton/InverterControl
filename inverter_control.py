@@ -1,7 +1,7 @@
 
 import json
 import asyncio
-import solis_functions as sf
+import inverter_functions as sf
 import unit_tests as ut
 
 keyId,secretKey,_,password,username,inverterSn,inverterId = sf.secrets()

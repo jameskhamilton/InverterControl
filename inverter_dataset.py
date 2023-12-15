@@ -1,7 +1,6 @@
-import http.client
 import json
 import asyncio
-import solis_functions as sf
+import inverter_functions as sf
 
 filePath = 'C:\\test\\security.json'
 
