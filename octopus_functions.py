@@ -2,8 +2,17 @@ import json
 import http.client
 import base64
 from datetime import datetime
+import os
 
 tarrifType = 'agile'
+
+def credentialFile(directoryFolder: str, filename: str) -> bool:
+    """
+    Check that the credential file exists
+    """
+    scriptDirectory = os.path.dirname(os.path.abspath(__file__))
+    filePath = os.path.join(scriptDirectory,directoryFolder, filename)
+    return os.path.exists(filePath)
 
 def secrets() -> tuple:
     """

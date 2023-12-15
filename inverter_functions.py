@@ -5,10 +5,19 @@ import base64
 from datetime import datetime, timezone
 import http.client
 import json
+import os
 
 url = 'www.soliscloud.com'
 port = '13333'
 apiMethod = 'POST'
+
+def credentialFile(directoryFolder: str, filename: str) -> bool:
+    """
+    Check that the credential file exists
+    """
+    scriptDirectory = os.path.dirname(os.path.abspath(__file__))
+    filePath = os.path.join(scriptDirectory,directoryFolder, filename)
+    return os.path.exists(filePath)
 
 def secrets() -> tuple:
     """

@@ -26,9 +26,6 @@ async def mainReturnRates(dateOffsetValue: int) -> json:
     
     try:
         tarrifCode = of.parseAgileCode(tarrifList, now)
-    except IndexError as e:
-        print(e)
-    try:
         product = of.parseProductCode(tarrifCode)
     except IndexError as e:
         print(e)
