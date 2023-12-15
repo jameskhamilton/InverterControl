@@ -10,6 +10,27 @@ url = 'www.soliscloud.com'
 port = '13333'
 apiMethod = 'POST'
 
+def secrets() -> tuple:
+    """
+    Returns:
+     
+    keyId, secretKey, stationId, password, username, inverterSn, inverterId
+    """
+    filePath = 'C:\\test\\security.json'
+
+    with open(filePath, 'r') as file:
+        securityData = json.load(file)
+
+    keyId = securityData['keyId']
+    secretKey = securityData['secretKey'].encode('utf-8') #bytes literal
+    stationId = securityData['stationId']
+    password = securityData['password']
+    username = securityData['username']
+    inverterSn = securityData['inverterSn']
+    inverterId = securityData['inverterId']
+
+    return keyId, secretKey, stationId, password, username, inverterSn, inverterId
+
 def contentType() -> str:
     return 'application/json'
 

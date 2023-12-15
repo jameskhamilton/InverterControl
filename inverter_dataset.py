@@ -8,9 +8,7 @@ filePath = 'C:\\test\\security.json'
 with open(filePath, 'r') as file:
     securityData = json.load(file)
 
-keyId = securityData['keyId']
-secretKey = securityData['secretKey'].encode('utf-8') #bytes literal
-stationId = securityData['stationId']
+keyId,secretKey,stationId = sf.secrets()[0:3]
 
 url = 'www.soliscloud.com'
 port = '13333'
@@ -78,5 +76,6 @@ async def datasetMain() -> list:
 
     return records
 
-records = asyncio.run(datasetMain())
-print(records)
+if __name__ == '__main__':
+    records = asyncio.run(datasetMain())
+    print(records)
