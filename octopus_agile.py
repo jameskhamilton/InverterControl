@@ -5,31 +5,6 @@ from datetime import datetime, timezone, timedelta
 
 apiKey, accountNumber = of.secrets()
 
-def parsePrices(agileDataset: json) -> list:
-    """
-    Parameters:
-    - json from the call for prices
-
-    Returns:
-    - a list containing the prices for each time period
-    """
-    records = []
-
-    for record in agileDataset['results']:
-        priceExclVAT = record['value_exc_vat']
-        priceInclVAT = record['value_inc_vat']
-        fromDateTime = record['valid_from']
-        toDateTime = record['valid_to']
-
-        records.append({
-                'priceExclVAT': priceExclVAT,
-                'priceInclVAT': priceInclVAT,
-                'fromDateTime': fromDateTime,
-                'toDateTime': toDateTime
-        })
-
-    return records
-
 async def mainReturnRates(dateOffsetValue: int) -> json:
     """
     Parameters:
@@ -64,7 +39,7 @@ async def mainReturnRates(dateOffsetValue: int) -> json:
     if agileDataset['count'] == 0:
         raise ValueError(f"Prices aren't available yet for {dateOffsetFormatted}")
 
-    result = parsePrices(agileDataset)
+    result = of.parsePrices(agileDataset)
 
     return result
 

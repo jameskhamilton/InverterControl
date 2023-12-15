@@ -167,3 +167,28 @@ def parseProductCode(tarrifCodeValue: str) -> str:
         raise IndexError(f'Pattern not found to extract the product from the tarrif code: \n {tarrifCodeValue}')
     else:
         return product
+    
+def parsePrices(agileDatasetValue: json) -> list:
+    """
+    Parameters:
+    - json from the call for prices
+
+    Returns:
+    - a list containing the prices for each time period
+    """
+    records = []
+
+    for record in agileDatasetValue['results']:
+        priceExclVAT = record['value_exc_vat']
+        priceInclVAT = record['value_inc_vat']
+        fromDateTime = record['valid_from']
+        toDateTime = record['valid_to']
+
+        records.append({
+                'priceExclVAT': priceExclVAT,
+                'priceInclVAT': priceInclVAT,
+                'fromDateTime': fromDateTime,
+                'toDateTime': toDateTime
+        })
+
+    return records
