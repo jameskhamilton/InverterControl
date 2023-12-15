@@ -38,18 +38,14 @@ async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretK
 
     return resultJSON["csrfToken"]
 
-async def controlMain(functionValue: int, chargeValue: str = None) -> json:
+def controlBody(functionValue: int, chargeValue: str = None) -> str:
     """
-    Function parameter:
-    - 0 (int) updates the charge settings with times passed in chargeValue variable
-    - 1 (int) updates the inverter time to current datetime
+    Parameters:
+    - takes the function and charge values from controlMain
+    - check that function for more detail about those parameters
 
-    Charge parameter:
-    - Amp and time values for when the inverter should charge or discharge.
-    - Amp charge 1, Amp discharge 1, Charge start time 1, Change end time 1, Discharge start time 1, Discharge end time 1... 2... 3
-        
     Returns:
-    - JSON result from the web request
+    - body value that's passed in the web request
     """
     if functionValue == 0:
         # set the charge datetimes
@@ -66,10 +62,26 @@ async def controlMain(functionValue: int, chargeValue: str = None) -> json:
             dttime = sf.currentDateTime(1)
         except ValueError as e:
             print(e)
-
         body = f'{{"inverterId":"{inverterId}","cid":56,"value":"{dttime}"}}'
     else:
         raise ValueError(f"Incorrect (int) value passed to main(): {function}\nExpected values are 0,1")
+    
+    return body
+
+async def controlMain(functionValue: int, chargeValue: str = None) -> json:
+    """
+    Function parameter:
+    - 0 (int) updates the charge settings with times passed in chargeValue variable
+    - 1 (int) updates the inverter time to current datetime
+
+    Charge parameter:
+    - Amp and time values for when the inverter should charge or discharge.
+    - Amp charge 1, Amp discharge 1, Charge start time 1, Change end time 1, Discharge start time 1, Discharge end time 1... 2... 3
+        
+    Returns:
+    - JSON result from the web request
+    """
+    body = controlBody(functionValue, chargeValue)
 
     token = await login(username, password, keyId, secretKey)
 

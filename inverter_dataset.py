@@ -2,11 +2,6 @@ import json
 import asyncio
 import inverter_functions as sf
 
-filePath = 'C:\\test\\security.json'
-
-with open(filePath, 'r') as file:
-    securityData = json.load(file)
-
 keyId,secretKey,stationId = sf.secrets()[0:3]
 
 url = 'www.soliscloud.com'

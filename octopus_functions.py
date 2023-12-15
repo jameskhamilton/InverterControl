@@ -30,12 +30,11 @@ def parseDatetime(datetimeValue: str) -> datetime:
     """
     if datetimeValue is None:
         return None
-    else:
-        try:
-            return datetime.strptime(datetimeValue, "%Y-%m-%dT%H:%M:%S%z")
-        except ValueError:
-            pass
-        raise ValueError(f'Unsupported datetime format: {datetimeValue}')
+    try:
+        return datetime.strptime(datetimeValue, "%Y-%m-%dT%H:%M:%S%z")
+    except ValueError:
+        pass
+    raise ValueError(f'Unsupported datetime format: {datetimeValue}')
 
 async def apiCall(urlValue: str, apiKeyValue: str = None) -> json:
     """
@@ -129,13 +128,19 @@ def parseAgileCode(datasetValue: list, nowValue: datetime) -> str:
     - assuming you only have 1 meter with 1 agile tarrif
     """
     filteredSet = set()
+
+    validFromCondition = lambda item: item.get('Tariff Valid From') <= nowValue
+    validToCondition = lambda item: item.get('Tariff Valid To') is None or item.get('Tariff Valid To') >= nowValue
+    tariffTypeCondition = lambda item: tarrifType.lower() in item.get('Tariff Code', '').lower()
+    exportMeterCondition = lambda item: not item.get('Export Meter', False)
+
     filteredSet.update(
         item['Tariff Code']
         for item in datasetValue
-        if item.get('Tariff Valid From') <= nowValue
-        and (item.get('Tariff Valid To') is None or item.get('Tariff Valid To') >= nowValue)
-        and tarrifType.lower() in item.get('Tariff Code', '').lower() #agile tarrif
-        and not item.get('Export Meter', False) #import meter
+        if validFromCondition(item)
+        and validToCondition(item)
+        and tariffTypeCondition(item)
+        and exportMeterCondition(item)
     )
 
     if len(filteredSet) > 1:
