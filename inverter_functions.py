@@ -11,32 +11,27 @@ url = 'www.soliscloud.com'
 port = '13333'
 apiMethod = 'POST'
 
-def credentialFile(directoryFolder: str, filename: str) -> bool:
-    """
-    Check that the credential file exists
-    """
-    scriptDirectory = os.path.dirname(os.path.abspath(__file__))
-    filePath = os.path.join(scriptDirectory,directoryFolder, filename)
-    return os.path.exists(filePath)
-
 def secrets() -> tuple:
     """
     Returns:
      
     keyId, secretKey, stationId, password, username, inverterSn, inverterId
     """
-    filePath = 'C:\\test\\security.json'
+    directoryFolder = 'credentials'
+    inverterFile = 'inverter_config.json'
+    scriptDirectory = os.path.dirname(os.path.abspath(__file__))
+    filePath = os.path.join(scriptDirectory,directoryFolder, inverterFile)
 
     with open(filePath, 'r') as file:
         securityData = json.load(file)
 
-    keyId = securityData['keyId']
-    secretKey = securityData['secretKey'].encode('utf-8') #bytes literal
-    stationId = securityData['stationId']
-    password = securityData['password']
-    username = securityData['username']
-    inverterSn = securityData['inverterSn']
-    inverterId = securityData['inverterId']
+    keyId = securityData['Key Id']
+    secretKey = securityData['Secret Key'].encode('utf-8') #bytes literal
+    stationId = securityData['Station Id']
+    password = securityData['Password']
+    username = securityData['Username']
+    inverterSn = securityData['Inverter SN']
+    inverterId = securityData['Inverter Id']
 
     return keyId, secretKey, stationId, password, username, inverterSn, inverterId
 

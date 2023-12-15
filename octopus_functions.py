@@ -6,26 +6,22 @@ import os
 
 tarrifType = 'agile'
 
-def credentialFile(directoryFolder: str, filename: str) -> bool:
-    """
-    Check that the credential file exists
-    """
-    scriptDirectory = os.path.dirname(os.path.abspath(__file__))
-    filePath = os.path.join(scriptDirectory,directoryFolder, filename)
-    return os.path.exists(filePath)
-
 def secrets() -> tuple:
     """
     Returns:
      
     apiKey, accountNumber
     """
-    filePath = 'C:\\test\\octopusSecurity.json'
+    directoryFolder = 'credentials'
+    inverterFile = 'octopus_config.json'
+    scriptDirectory = os.path.dirname(os.path.abspath(__file__))
+    filePath = os.path.join(scriptDirectory,directoryFolder, inverterFile)
+    
     with open(filePath, 'r') as file:
         securityData = json.load(file)
 
-    apiKey = securityData['apiKey']
-    accountNumber = securityData['accountNumber']
+    apiKey = securityData['API Key']
+    accountNumber = securityData['Account Number']
 
     return apiKey, accountNumber
 

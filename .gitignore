@@ -6,3 +6,5 @@ __pycache__/inverter_dataset.cpython-312.pyc
 __pycache__/inverter_functions.cpython-312.pyc
 __pycache__/octopus_agile.cpython-312.pyc
 __pycache__
+credentials
+*.json

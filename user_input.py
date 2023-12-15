@@ -85,7 +85,7 @@ class UserInputWindow:
         self.root.mainloop()
 
 if __name__ == "__main__":
-    labels = ["Name", "Age", "City", "Country"]  # Customize your list of labels
+    labels = ["Test", "Test", "Test", "Test"]  # Customize your list of labels
     directoryFolder = "credentials"
     outputFilename = "creds.json"  # Customize your output filename
     sourceName = "Octopus"
