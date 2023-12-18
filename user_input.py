@@ -3,7 +3,7 @@ from tkinter import ttk
 import json
 import os
 
-def saveToJSON(data: json, directoryFolder: str, filename: str) -> None:
+def saveToJSON(dataValue: json, directoryFolderValue: str, filenameValue: str) -> None:
     """
     Parameters:
     - json result from the user input
@@ -13,64 +13,72 @@ def saveToJSON(data: json, directoryFolder: str, filename: str) -> None:
     Result:
     - save / overwrite file
     """
-    os.makedirs(directoryFolder, exist_ok=True)
+    os.makedirs(directoryFolderValue, exist_ok=True)
 
-    filepath = os.path.join(directoryFolder, filename)
+    filepath = os.path.join(directoryFolderValue, filenameValue)
 
     with open(filepath, 'w') as jsonFile:
-        json.dump(data, jsonFile, indent=2)
+        json.dump(dataValue, jsonFile, indent=2)
 
 class DynamicInputEntry:
-    def __init__(self, labelValue: str, row: int, column: int, root) -> None:
+    def __init__(self, labelValue: str, rowValue: int, columnValue: int, root) -> None:
         """
         Defines the style for the user input fields
         """
         self.style = ttk.Style()
         self.style.configure("InputLabel.TLabel")
         self.label = ttk.Label(root, text=labelValue, style="InputLabel.TLabel", background="#f0f0f0", anchor="n")
-        self.label.grid(row=row, column=column, padx=2, pady=2, sticky="n")
+        self.label.grid(row=rowValue, column=columnValue, padx=2, pady=2, sticky="n")
 
         self.style.configure("InputEntry.TEntry")
         self.entry = ttk.Entry(root, style="InputEntry.TEntry")
-        self.entry.grid(row=row, column=column + 1, padx=2, pady=2, sticky="n")
+        self.entry.grid(row=rowValue, column=columnValue + 1, padx=2, pady=2, sticky="n")
 
     def getInputLabel(self):
         return self.entry.get()
 
 class UserInputWindow:
-    def __init__(self, labelList: str, directoryFolder: str, fileName: str, sourceName: str) -> None:
+    def __init__(self, fieldListValue: list, directoryFolderValue: str, fileNameValue: str, sourceNameValue: str) -> None:
         """
         Build the user input window with all required fields and submit button
         """
         self.root = tk.Tk()
-        self.root.title(f"{sourceName} Credentials Input")
+        self.root.title(f"{sourceNameValue} Credentials Input")
         self.root.geometry("400x200")
         self.root.configure(bg="#f0f0f0")
 
-        self.labelList = labelList
-        self.directoryFolder = directoryFolder
-        self.fileName = fileName
-        self.createDynamicInputFields()
+        self.fields = 0
+        self.fieldList = fieldListValue
+        self.directoryFolder = directoryFolderValue
+        self.fileName = fileNameValue
+
+        self.fields = self.createDynamicInputFields()
 
         submitButton = ttk.Button(self.root, text="Submit", command=self.submitInput)
-        submitButton.grid(row=len(labelList) + 1, column=0, columnspan=2, pady=10, sticky="s")
+        submitButton.grid(row=self.fields + 1, column=0, columnspan=2, pady=10, sticky="s")
 
         #Ensure that the columns and rows in the grid are configured to expand or shrink when the window is resized.
         self.root.columnconfigure(0, weight=1)
         self.root.columnconfigure(1, weight=1)
         self.root.rowconfigure(0, weight=1)
-        for i in range(len(labelList) + 1):
+        for i in range(self.fields + 1):
             self.root.rowconfigure(i, weight=1)
 
-    def createDynamicInputFields(self) -> None:
+    def createDynamicInputFields(self) -> int:
         """
-        Create a fields based off the input list
+        Purpose:
+        - Create a fields based off the input list
+
+        Returns:
+        - number of fields in the list
         """
         self.dynamicEntries = []
 
-        for i, labelValue in enumerate(self.labelList, start=1):
+        for i, labelValue in enumerate(self.fieldList, start=1):
             dynamicEntry = DynamicInputEntry(labelValue, i, 0, self.root)
             self.dynamicEntries.append(dynamicEntry)
+
+        return len(self.fieldList)
 
     def submitInput(self) -> None:
         """
