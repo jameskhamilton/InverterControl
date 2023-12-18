@@ -38,21 +38,29 @@ class DynamicInputEntry:
         return self.entry.get()
     
 class DynamicButtonEntry:
-    def __init__(self, buttonValue: str, columnValue: int, rowValue: int, root) -> None:
+    def __init__(self, buttonValue: str, columnValue: int, rowValue: int, root, callbackValue=None) -> None:
         """
         Defines the style and action of buttons
         """
-        submitButton = ttk.Button(root, text=buttonValue, width = 150, command=self.submitInput)
-        submitButton.grid(row=rowValue, column=columnValue, columnspan=1, padx=10, pady=10, sticky="s")
+        self.callback = callbackValue
+        self.buttonValue = buttonValue
+
+        self.button = ttk.Button(root, text=buttonValue, width = 150, command=self.noInput)
+        self.button.grid(row=rowValue, column=columnValue, columnspan=1, padx=10, pady=10, sticky="s")
 
     def submitInput(self) -> None:
-        """
-        Defines how the submit button works
-        """
-        data = {entry.label.cget("text"): entry.getInputLabel() for entry in self.dynamicEntries}
-        saveToJSON(data, self.directoryFolder, self.fileName)
+        data = {entry.label.cget("text"): entry.getInputLabel() for entry in UserInputWindow.dynamicEntries}
+        saveToJSON(data, UserInputWindow.directoryFolder, UserInputWindow.fileName)
 
+        UserInputWindow.root.destroy()
+
+    def noInput(self) -> None:
+        if self.callback:
+            self.callback(self.buttonValue)  # Call the callback with the button value
         self.root.destroy()
+
+    def yesInput(self) -> None:
+        return True
 
 class UserInputWindow:
     def __init__(self, fieldListValue: list, directoryFolderValue: str, fileNameValue: str, sourceNameValue: str) -> None:
@@ -68,15 +76,13 @@ class UserInputWindow:
         self.fieldList = fieldListValue
         self.directoryFolder = directoryFolderValue
         self.fileName = fileNameValue
-        self.buttonList = [("Yes",1),("No",1),("Nsdfsfsdfsdfsdfsfsdfsdfsdfsdfsdfsdfsdfo",2),("No",2),("No",3),("No",3),("No",3)]
+        self.buttonList = [("Yes",1),("No",1),("Submit",2)]
 
         #handles no fields
         if self.fieldList:
             self.fields = self.createDynamicInputFields()
 
         self.createDynamicButtons()
-        #submitButton = ttk.Button(self.root, text="Submit", command=self.submitInput)
-        #submitButton.grid(row=self.fields + 1, column=0, columnspan=2, pady=10, sticky="s")
 
         #Ensure that the columns and rows in the grid are configured to expand or shrink when the window is resized.
         self.root.columnconfigure(0, weight=1)
@@ -96,7 +102,7 @@ class UserInputWindow:
         self.dynamicEntries = []
 
         for y, labelValue in enumerate(self.fieldList, start=1):
-            dynamicEntry = DynamicInputEntry(labelValue, 0, y, self.root)
+            dynamicEntry = DynamicInputEntry(labelValue, 1, y, self.root)
             self.dynamicEntries.append(dynamicEntry)
 
         return len(self.fieldList)
@@ -116,7 +122,8 @@ class UserInputWindow:
             #reset the columns for a new row
             if lasty < y:
                 x = 1
-            dynamicButton = DynamicButtonEntry(buttonValue, x, y, self.root)
+            
+            dynamicButton = DynamicButtonEntry(buttonValue, x, y + self.fields, self.root)
             self.dynamicButtons.append(dynamicButton)
             #center the button in the column
             self.root.grid_columnconfigure(x, weight=1)
@@ -128,7 +135,7 @@ class UserInputWindow:
         self.root.mainloop()
 
 if __name__ == "__main__":
-    labels = None# [""]  # Customize your list of labels
+    labels = ["Password", "other"]  # Customize your list of labels
     directoryFolder = "credentials"
     outputFilename = "creds.json"  # Customize your output filename
     sourceName = "Octopus"
