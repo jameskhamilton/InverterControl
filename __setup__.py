@@ -13,18 +13,31 @@ def credentialFile(directoryFolder: str, filename: str) -> bool:
 
 directoryFolder = 'credentials'
 inverterFile = 'inverter_config.json'
-octopusFile = 'octopus_config.json'
+octopusFile = 'octopus_config1.json'
 inverterLabels = ['Key Id', 'Secret Key', 'Username', 'Password', 'Inverter SN', 'Inverter Id', 'Station Id']
 octopusLabels = ['API Key', 'Account Number']
+submitList = [('Submit',1)]
+choiceList = [('Yes',1),('No',1)]
 
 #check for inverter credentials
-if not credentialFile(directoryFolder, inverterFile):
+if credentialFile(directoryFolder, inverterFile):
     sourceName = 'Inverter'
-    userInputWindow = UserInputWindow(inverterLabels, directoryFolder, inverterFile, sourceName)
-    userInputWindow.run()
+    buttonValue = choiceList
+    userInputWindow = UserInputWindow(None, buttonValue, directoryFolder, inverterFile, sourceName)
+    result = userInputWindow.run()
+elif not credentialFile(directoryFolder, inverterFile):
+    sourceName = 'Inverter'
+    buttonValue = submitList
+    userInputWindow = UserInputWindow(inverterLabels, buttonValue, directoryFolder, inverterFile, sourceName)
+    result = userInputWindow.run()
+
+    print(result)
 
 #check for octopus credentials
 if not credentialFile(directoryFolder, octopusFile):
     sourceName = 'Octopus'
-    userInputWindow = UserInputWindow(octopusLabels, directoryFolder, octopusFile, sourceName)
-    userInputWindow.run()
+    buttonValue = submitList
+    userInputWindow = UserInputWindow(octopusLabels, buttonValue, directoryFolder, octopusFile, sourceName)
+    result = userInputWindow.run()
+
+    print(result)

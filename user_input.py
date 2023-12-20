@@ -21,7 +21,7 @@ def saveToJSON(dataValue: json, directoryFolderValue: str, filenameValue: str) -
         json.dump(dataValue, jsonFile, indent=2)
 
 class DynamicInputEntry:
-    def __init__(self, labelValue: str, columnValue: int, rowValue: int, root) -> None:
+    def __init__(self, root, labelValue: str, columnValue: int, rowValue: int) -> None:
         """
         Defines the style for the user input fields
         """
@@ -38,32 +38,33 @@ class DynamicInputEntry:
         return self.entry.get()
     
 class DynamicButtonEntry:
-    def __init__(self, buttonValue: str, columnValue: int, rowValue: int, root, callbackValue=None) -> None:
+    def __init__(self, root, window, buttonValue: str, columnValue: int, rowValue: int, callbackValue=None) -> None:
         """
         Defines the style and action of buttons
         """
+        self.root = root
+        self.window = window
         self.callback = callbackValue
         self.buttonValue = buttonValue
 
-        self.button = ttk.Button(root, text=buttonValue, width = 150, command=self.noInput)
+        if buttonValue == 'Submit':
+            self.button = ttk.Button(root, text=buttonValue, width = 15, command=self.submitInput)
+        else:
+            self.button = ttk.Button(root, text=buttonValue, width = 15, command=self.defaultInput)
         self.button.grid(row=rowValue, column=columnValue, columnspan=1, padx=10, pady=10, sticky="s")
 
     def submitInput(self) -> None:
-        data = {entry.label.cget("text"): entry.getInputLabel() for entry in UserInputWindow.dynamicEntries}
-        saveToJSON(data, UserInputWindow.directoryFolder, UserInputWindow.fileName)
-
-        UserInputWindow.root.destroy()
-
-    def noInput(self) -> None:
-        if self.callback:
-            self.callback(self.buttonValue)  # Call the callback with the button value
+        data = {entry.label.cget("text"): entry.getInputLabel() for entry in self.window.dynamicEntries}
+        saveToJSON(data, self.window.directoryFolder, self.window.fileName)
+        self.window.result = 'Submitted'
         self.root.destroy()
 
-    def yesInput(self) -> None:
-        return True
+    def defaultInput(self) -> None:
+        self.window.result = self.buttonValue
+        self.root.destroy()
 
 class UserInputWindow:
-    def __init__(self, fieldListValue: list, directoryFolderValue: str, fileNameValue: str, sourceNameValue: str) -> None:
+    def __init__(self, fieldListValue: list, buttonListValue: list, directoryFolderValue: str, fileNameValue: str, sourceNameValue: str) -> None:
         """
         Build the user input window with all required fields and submit button
         """
@@ -73,20 +74,24 @@ class UserInputWindow:
         self.root.configure(bg="#f0f0f0")
 
         self.fields = 0
+        self.width = 0
         self.fieldList = fieldListValue
+        self.buttonList = buttonListValue
         self.directoryFolder = directoryFolderValue
         self.fileName = fileNameValue
-        self.buttonList = [("Yes",1),("No",1),("Submit",2)]
 
-        #handles no fields
+        self.result = None
+        
+        #handles no values passed
         if self.fieldList:
             self.fields = self.createDynamicInputFields()
-
-        self.createDynamicButtons()
+        if self.buttonList:
+            self.width = self.createDynamicButtons()
 
         #Ensure that the columns and rows in the grid are configured to expand or shrink when the window is resized.
         self.root.columnconfigure(0, weight=1)
-        self.root.columnconfigure(1, weight=1)
+        for i in (range (self.width + 1)):
+            self.root.columnconfigure(i, weight=1)
         self.root.rowconfigure(0, weight=1)
         for i in range(self.fields + 1):
             self.root.rowconfigure(i, weight=1)
@@ -102,7 +107,7 @@ class UserInputWindow:
         self.dynamicEntries = []
 
         for y, labelValue in enumerate(self.fieldList, start=1):
-            dynamicEntry = DynamicInputEntry(labelValue, 1, y, self.root)
+            dynamicEntry = DynamicInputEntry(self.root, labelValue, 1, y)
             self.dynamicEntries.append(dynamicEntry)
 
         return len(self.fieldList)
@@ -113,17 +118,19 @@ class UserInputWindow:
         - Create buttons based off the input list
 
         Returns:
-        - array that was passed with the buttons to determine x, y
+        - the width of the button list
         """
         self.dynamicButtons = []
         lasty = 0
         x = 1
+
         for (buttonValue, y) in self.buttonList:
+
             #reset the columns for a new row
             if lasty < y:
                 x = 1
             
-            dynamicButton = DynamicButtonEntry(buttonValue, x, y + self.fields, self.root)
+            dynamicButton = DynamicButtonEntry(self.root, self, buttonValue, x, y + self.fields)
             self.dynamicButtons.append(dynamicButton)
             #center the button in the column
             self.root.grid_columnconfigure(x, weight=1)
@@ -131,13 +138,19 @@ class UserInputWindow:
             x += 1
             lasty = y
 
+        return x
+
     def run(self):
         self.root.mainloop()
+        return self.result
 
 if __name__ == "__main__":
-    labels = ["Password", "other"]  # Customize your list of labels
+    labels = ["Password", "Username"]  # Customize your list of labels
+    buttons = [("Submit",1)]
     directoryFolder = "credentials"
-    outputFilename = "creds.json"  # Customize your output filename
+    outputFilename = "creds2.json"  # Customize your output filename
     sourceName = "Octopus"
-    userInputWindow = UserInputWindow(labels, directoryFolder, outputFilename, sourceName)
-    userInputWindow.run()
+    userInputWindow = UserInputWindow(labels, buttons, directoryFolder, outputFilename, sourceName)
+    result = userInputWindow.run()
+
+    print(result)
