@@ -64,7 +64,7 @@ class DynamicButtonEntry:
         self.root.destroy()
 
 class UserInputWindow:
-    def __init__(self, fieldListValue: list, buttonListValue: list, directoryFolderValue: str, fileNameValue: str, sourceNameValue: str) -> None:
+    def __init__(self, fieldListValue: list, buttonListValue: list, directoryFolderValue: str, fileNameValue: str, sourceNameValue: str, textValue: str = None) -> None:
         """
         Build the user input window with all required fields and submit button
         """
@@ -79,10 +79,13 @@ class UserInputWindow:
         self.buttonList = buttonListValue
         self.directoryFolder = directoryFolderValue
         self.fileName = fileNameValue
+        self.text = textValue
 
         self.result = None
         
         #handles no values passed
+        if self.text:
+            self.addText(self.text, 1, 0)
         if self.fieldList:
             self.fields = self.createDynamicInputFields()
         if self.buttonList:
@@ -139,6 +142,13 @@ class UserInputWindow:
             lasty = y
 
         return x
+    
+    def addText(self, textValue, columnValue, rowValue):
+        """
+        Add text to the window.
+        """
+        label = ttk.Label(self.root, text=textValue, background="#f0f0f0")
+        label.grid(row=rowValue, column=columnValue, columnspan=2, padx=10, pady=10)    
 
     def run(self):
         self.root.mainloop()
@@ -146,11 +156,12 @@ class UserInputWindow:
 
 if __name__ == "__main__":
     labels = ["Password", "Username"]  # Customize your list of labels
-    buttons = [("Submit",1)]
+    buttons = [("Submit",1),("Cancel",1)]
     directoryFolder = "credentials"
     outputFilename = "creds2.json"  # Customize your output filename
     sourceName = "Octopus"
-    userInputWindow = UserInputWindow(labels, buttons, directoryFolder, outputFilename, sourceName)
+    textValue = 'Do you want to overwrite the existing credentials?'
+    userInputWindow = UserInputWindow(labels, buttons, directoryFolder, outputFilename, sourceName, textValue)
     result = userInputWindow.run()
 
     print(result)

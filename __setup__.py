@@ -13,31 +13,32 @@ def credentialFile(directoryFolder: str, filename: str) -> bool:
 
 directoryFolder = 'credentials'
 inverterFile = 'inverter_config.json'
-octopusFile = 'octopus_config1.json'
+octopusFile = 'octopus_config.json'
 inverterLabels = ['Key Id', 'Secret Key', 'Username', 'Password', 'Inverter SN', 'Inverter Id', 'Station Id']
 octopusLabels = ['API Key', 'Account Number']
-submitList = [('Submit',1)]
+submitList = [('Submit',1),('Cancel',1)]
 choiceList = [('Yes',1),('No',1)]
 
-#check for inverter credentials
-if credentialFile(directoryFolder, inverterFile):
-    sourceName = 'Inverter'
-    buttonValue = choiceList
-    userInputWindow = UserInputWindow(None, buttonValue, directoryFolder, inverterFile, sourceName)
-    result = userInputWindow.run()
-elif not credentialFile(directoryFolder, inverterFile):
-    sourceName = 'Inverter'
-    buttonValue = submitList
-    userInputWindow = UserInputWindow(inverterLabels, buttonValue, directoryFolder, inverterFile, sourceName)
+overwritePrompt = lambda text: f'Do you want to overwrite the existing {text} credentials?'
+
+def windowPrompt(labelValue, buttonValue, directoryFolder, inverterFile, sourceName, textValue):
+    userInputWindow = UserInputWindow(labelValue, buttonValue, directoryFolder, inverterFile, sourceName, textValue)
     result = userInputWindow.run()
 
-    print(result)
+    return result
+
+#check for inverter credentials
+sourceName = 'Inverter'
+if credentialFile(directoryFolder, inverterFile):
+    resultChoice = windowPrompt(None, choiceList, None, None, sourceName, overwritePrompt(sourceName))
+
+if ( not credentialFile(directoryFolder, inverterFile) ) or resultChoice == 'Yes':
+    resultInput = windowPrompt(inverterLabels, submitList, directoryFolder, inverterFile, sourceName, None)
 
 #check for octopus credentials
-if not credentialFile(directoryFolder, octopusFile):
-    sourceName = 'Octopus'
-    buttonValue = submitList
-    userInputWindow = UserInputWindow(octopusLabels, buttonValue, directoryFolder, octopusFile, sourceName)
-    result = userInputWindow.run()
-
-    print(result)
+sourceName = 'Octopus'
+if credentialFile(directoryFolder, octopusFile):
+    resultChoice = windowPrompt(None, choiceList, None, None, sourceName, overwritePrompt(sourceName))
+    
+if ( not credentialFile(directoryFolder, octopusFile) ) or resultChoice == 'Yes':
+    resultInput = windowPrompt(octopusLabels, submitList, directoryFolder, octopusFile, sourceName, None)
