@@ -51,6 +51,7 @@ class DynamicButtonEntry:
             self.button = ttk.Button(root, text=buttonValue, width = 15, command=self.submitInput)
         else:
             self.button = ttk.Button(root, text=buttonValue, width = 15, command=self.defaultInput)
+<<<<<<< HEAD
 
         self.button.grid(row=rowValue, column=columnValue, columnspan=1, padx=10, pady=10, sticky="s")
 
@@ -58,15 +59,24 @@ class DynamicButtonEntry:
         """
         Bundles the data points to be saved to file, returns a string to confirm Submitted, then closes the window
         """
+=======
+        self.button.grid(row=rowValue, column=columnValue, columnspan=1, padx=10, pady=10, sticky="s")
+
+    def submitInput(self) -> None:
+>>>>>>> f76ac54b76717a50c47ceb68e836175f1323d7bb
         data = {entry.label.cget("text"): entry.getInputLabel() for entry in self.window.dynamicEntries}
         saveToJSON(data, self.window.directoryFolder, self.window.fileName)
         self.window.result = 'Submitted'
         self.root.destroy()
 
+<<<<<<< HEAD
     def defaultInput(self) -> str:
         """
         Returns a string with the button text, then closes the window
         """        
+=======
+    def defaultInput(self) -> None:
+>>>>>>> f76ac54b76717a50c47ceb68e836175f1323d7bb
         self.window.result = self.buttonValue
         self.root.destroy()
 
@@ -126,6 +136,39 @@ class UserInputWindow:
         """
         Purpose:
         - Create buttons based off the input list
+<<<<<<< HEAD
+=======
+
+        Returns:
+        - the width of the button list
+        """
+        self.dynamicButtons = []
+        lasty = 0
+        x = 1
+
+        for (buttonValue, y) in self.buttonList:
+
+            #reset the columns for a new row
+            if lasty < y:
+                x = 1
+            
+            dynamicButton = DynamicButtonEntry(self.root, self, buttonValue, x, y + self.fields)
+            self.dynamicButtons.append(dynamicButton)
+            #center the button in the column
+            self.root.grid_columnconfigure(x, weight=1)
+
+            x += 1
+            lasty = y
+
+        return x
+    
+    def addText(self, textValue, columnValue, rowValue):
+        """
+        Add text to the window.
+        """
+        label = ttk.Label(self.root, text=textValue, background="#f0f0f0")
+        label.grid(row=rowValue, column=columnValue, columnspan=2, padx=10, pady=10)    
+>>>>>>> f76ac54b76717a50c47ceb68e836175f1323d7bb
 
         Returns:
         - the width of the button list
