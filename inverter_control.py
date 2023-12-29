@@ -9,20 +9,20 @@ keyId,secretKey,_,password,username,inverterSn,inverterId = sf.secrets()
 controlResource = '/v2/api/control'
 loginResource = '/v2/api/login'
 
-chargeStart0 = '00:00'
-chargeEnd0 = '00:00'
-dischargeStart0 = '00:00'
-dischargeEnd0 = '00:00'
-chargeStart1 = '00:00'
-chargeEnd1 = '00:00'
-dischargeStart1 = '00:00'
-dischargeEnd1 = '00:00'
-chargeStart2 = '00:00'
-chargeEnd2 = '00:00'
-dischargeStart2 = '00:00'
-dischargeEnd2 = '00:00'
+chSt0 = '00:00'
+chEn0 = '00:00'
+dischSt0 = '00:00'
+dischEn0 = '00:00'
+chSt1 = '00:00'
+chEn1 = '00:00'
+dischSt1 = '00:00'
+dischEn1 = '00:00'
+chSt2 = '00:00'
+chEn2 = '00:00'
+dischSt2 = '00:00'
+dischEn2 = '00:00'
 
-chargeTimes = f"50,50,{chargeStart0},{chargeEnd0},{dischargeStart0},{dischargeEnd0},50,50,{chargeStart1},{chargeEnd1},{dischargeStart1},{dischargeEnd1},50,50,{chargeStart2},{chargeEnd2},{dischargeStart2},{dischargeEnd2}"
+chargeTimes = f"50,50,{chSt0},{chEn0},{dischSt0},{dischEn0},50,50,{chSt1},{chEn1},{dischSt1},{dischEn1},50,50,{chSt2},{chEn2},{dischSt2},{dischEn2}"
 
 async def login(usernameValue: str, passwordValue: str, keyIdValue: str, secretKeyValue:str) -> str:
     """
