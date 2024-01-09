@@ -17,14 +17,23 @@ The primary goal of the Inverter Control project is to:
 - **Add more detail about setting up credentials for Octopus and Solis API:** Documenting the steps needed to get credentials for API access.
 - **Integrate Octopus Agile daily tariff to charge the battery when it's cheap:** The next step in the project is to fully integrate the Octopus Agile tariff data. This will allow the system to charge the battery during periods of lower energy costs.
 
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Python:** This project requires Python to be installed on your machine. Visit [Python's official website](https://www.python.org/downloads/) for download and installation instructions.
+- **Git:** You will need Git for cloning the repository. Download and install it from [Git's official website](https://git-scm.com/downloads).
+
 ## Installation and Running the Project
 
 To get started with the Inverter Control project, follow these steps:
 
 1. **Clone the Repository:**
 
+Clone:
+
    ```bash
-   git clone https://github.com/jameskhamilton/InverterControl
+   git clone https://github.com/jameskhamilton/InverterControl.git
    ```
 
 2. **Run Setup**
