@@ -28,7 +28,7 @@ Before you begin, ensure you have the following installed:
 
 To get started with the Inverter Control project, follow these steps:
 
-1. **Clone the Repository:**
+1. **Clone the Repository**
 
 Clone:
 
