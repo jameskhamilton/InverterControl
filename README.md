@@ -22,6 +22,7 @@ The primary goal of the Inverter Control project is to:
 To get started with the Inverter Control project, follow these steps:
 
 1. **Clone the Repository:**
+
    ```bash
    git clone https://github.com/jameskhamilton/InverterControl
    ```
