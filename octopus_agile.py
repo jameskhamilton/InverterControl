@@ -38,7 +38,6 @@ async def mainReturnRates(dateOffsetValue: int) -> json:
 
     result = of.parsePrices(agileDataset)
 
-    print(result)
     return result
 
 

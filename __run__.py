@@ -7,10 +7,10 @@ import asyncio
 inverterValues = asyncio.run(id.datasetMain())
 dc.inverterInsert(inverterValues)
 
-# prices = None
-# try:
-#     prices = asyncio.run(oa.mainReturnRates(1))
-# except ValueError as e:
-#     print(e)
+prices = []
+try:
+    prices = asyncio.run(oa.mainReturnRates(1))
+except ValueError as e:
+    print(e)
 
-# print(prices)
+dc.octopusInsert(prices)

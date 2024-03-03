@@ -192,8 +192,8 @@ def parsePrices(agileDatasetValue: json) -> list:
         records.append({
                 'priceExclVAT': priceExclVAT,
                 'priceInclVAT': priceInclVAT,
-                'fromDateTime': fromDateTime,
-                'toDateTime': toDateTime
+                'fromDateTime': fromDateTime,#datetime.strptime(fromDateTime.split(' (UTC')[0], '%Y-%m-%d %H:%M:%S'),
+                'toDateTime': toDateTime#datetime.strptime(toDateTime.split(' (UTC')[0], '%Y-%m-%d %H:%M:%S')
         })
 
     return records
