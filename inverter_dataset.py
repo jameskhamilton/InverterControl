@@ -1,6 +1,7 @@
 import json
 import asyncio
 import inverter_functions as sf
+from datetime import datetime
 
 keyId,secretKey,stationId = sf.secrets()[0:3]
 
@@ -59,13 +60,12 @@ async def datasetMain() -> list:
         recordGridUsage = -record['psum'] #flipping negation to make grid usage a positive, sending to grid a negative
 
     records.append({
-            'Inverter ID': recordId,
-            'Data Timestamp': recordTimestamp,
-            'SoC': recordSoC,
-            'Battery Discharge KwH': recordDischarge,
-            'PV Yield KwH': recordPVYield,
-            'Grid Usage KwH': recordGridUsage,
-            'House Load KwH': recordDischarge + recordPVYield + recordGridUsage
+        'Data Timestamp': datetime.strptime(recordTimestamp.split(' (UTC')[0], '%Y-%m-%d %H:%M:%S'),
+        'SoC': recordSoC,
+        'Battery Discharge KwH': recordDischarge,
+        'PV Yield KwH': recordPVYield,
+        'Grid Usage KwH': recordGridUsage,
+        'House Load KwH': recordDischarge + recordPVYield + recordGridUsage      
     })
 
     return records
