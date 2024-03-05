@@ -1,6 +1,6 @@
 import json
 import asyncio
-import inverter_functions as sf
+from libraries import inverter_functions as sf
 from datetime import datetime
 
 keyId,secretKey,stationId = sf.secrets()[0:3]

@@ -1,8 +1,8 @@
 
 import json
 import asyncio
-import inverter_functions as sf
-import unit_tests as ut
+from libraries import inverter_functions as sf
+from libraries import unit_tests as ut
 
 keyId,secretKey,_,password,username,inverterSn,inverterId = sf.secrets()
 

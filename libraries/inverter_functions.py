@@ -20,7 +20,9 @@ def secrets() -> tuple:
     directoryFolder = 'credentials'
     inverterFile = 'inverter_config.json'
     scriptDirectory = os.path.dirname(os.path.abspath(__file__))
-    filePath = os.path.join(scriptDirectory,directoryFolder, inverterFile)
+    parentDirectory = os.path.abspath(os.path.join(scriptDirectory, os.pardir))
+
+    filePath = os.path.join(parentDirectory, directoryFolder, inverterFile)
 
     with open(filePath, 'r') as file:
         securityData = json.load(file)

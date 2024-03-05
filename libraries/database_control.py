@@ -1,6 +1,6 @@
 import pyodbc
-import inverter_functions as sf
-import octopus_functions as of
+from libraries import inverter_functions as sf
+from libraries import octopus_functions as of
 from datetime import datetime
 
 database = 'marvin'

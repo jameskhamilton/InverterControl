@@ -1,6 +1,6 @@
 import asyncio
 import json
-import octopus_functions as of
+from libraries import octopus_functions as of
 from datetime import datetime, timezone, timedelta
 
 apiKey, accountNumber = of.secrets()
