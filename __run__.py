@@ -21,3 +21,5 @@ def control():
             print(e)
 
         dc.octopusInsert(prices)
+
+    return inverterValues
