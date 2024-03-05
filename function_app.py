@@ -1,5 +1,6 @@
 import logging
 import __run__ as r
+import asyncio
 import azure.functions as func
 
 app = func.FunctionApp()
@@ -10,6 +11,6 @@ def timer_trigger(myTimer: func.TimerRequest) -> None:
     if myTimer.past_due:
         logging.info('The timer is past due!')
 
-    r.run()
+    asyncio.run(r.control())
 
     logging.info('Python timer trigger function executed.')

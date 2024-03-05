@@ -7,7 +7,7 @@ import asyncio
 
 current = datetime.now().time()
 
-def run():
+def control():
     
     inverterValues = asyncio.run(id.datasetMain())
     dc.inverterInsert(inverterValues)
