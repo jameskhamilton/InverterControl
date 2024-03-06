@@ -28,12 +28,12 @@ def octopusInsert(octopusDatasetValue: list) -> None:
         logging.error(e)
         return None    
 
-    cursor = connection.cursor()
-
     timestamp = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
     sqlInsert = f"INSERT INTO OCTOPUS_PRICES VALUES ('{timestamp}', ?, ?, ?, ?)"
 
     try:
+        cursor = connection.cursor()
+
         for dict in octopusDatasetValue:
 
             values = [
@@ -52,8 +52,8 @@ def octopusInsert(octopusDatasetValue: list) -> None:
                 cursor.execute(sqlInsert, values)
                 connection.commit()
 
-            cursor.close()
-            connection.close()
+        cursor.close()
+        connection.close()
 
     except Exception as e:
         print(f"Octopus database insert failed: {e}") 

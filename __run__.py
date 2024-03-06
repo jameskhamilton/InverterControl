@@ -20,7 +20,7 @@ def control():
     if time(16, 0) <= current <= time(16, 30):
         prices = []
         try:
-            prices = asyncio.run(oa.mainReturnRates(0))
+            prices = asyncio.run(oa.mainReturnRates(1))
         except ValueError as e:
             print(e)
 
