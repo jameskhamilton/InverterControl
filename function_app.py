@@ -15,8 +15,6 @@ def timer_trigger(myTimer: func.TimerRequest) -> None:
     except Exception as e:
         logging.error(f'Could not run: {e}')
 
-    logging.info(ls)
-
     if myTimer.past_due:
         logging.info('The timer is past due!')
 
