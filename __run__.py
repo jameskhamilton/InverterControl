@@ -4,13 +4,18 @@ from libraries import octopus_agile as oa
 from libraries import database_control as dc
 from datetime import datetime, time
 import asyncio
+import logging
 
 current = datetime.now().time()
 
 def control():
     
     inverterValues = asyncio.run(id.datasetMain())
-    dc.inverterInsert(inverterValues)
+    try:
+        dc.inverterInsert(inverterValues)
+        logging.info('Inverter Insert Finished.')
+    except Exception as e:
+        logging.error(f'Inverter Insert Failed. {e}')
 
     # insert prices for the following day at 6pm - todo - review this!
     if time(18, 0) <= current <= time(18, 10):

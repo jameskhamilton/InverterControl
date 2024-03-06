@@ -1,4 +1,5 @@
 import pyodbc
+import logging
 from libraries import inverter_functions as sf
 from libraries import octopus_functions as of
 from datetime import datetime
@@ -20,7 +21,7 @@ def octopusInsert(octopusDatasetValue: list) -> None:
     password = of.secrets()[0]
 
     try:
-        connectionString = f'DRIVER={{SQL Server}};SERVER={server};DATABASE={database};UID={user};PWD={password}'
+        connectionString = f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={server};DATABASE={database};UID={user};PWD={password}'
         connection = pyodbc.connect(connectionString)
     
     except Exception as e:
@@ -63,11 +64,12 @@ def inverterInsert(inverterDatasetValue: list) -> None:
     password = sf.secrets()[3]
 
     try:
-        connectionString = f'DRIVER={{SQL Server}};SERVER={server};DATABASE={database};UID={user};PWD={password}'
+        connectionString = f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={server};DATABASE={database};UID={user};PWD={password}'
         connection = pyodbc.connect(connectionString)
     
     except Exception as e:
         print(f"Inverter database connection failed: {e}") 
+        logging.error(e)
         return None
 
     # Construct SQL INSERT statement
@@ -92,6 +94,7 @@ def inverterInsert(inverterDatasetValue: list) -> None:
 
     except Exception as e:
         print(f"Inverter database insert failed: {e}")  
+        logging.error(e)
 
     cursor.close()
     connection.close()
