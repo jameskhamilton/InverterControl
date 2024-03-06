@@ -6,8 +6,6 @@ from datetime import datetime, time
 import asyncio
 import logging
 
-current = datetime.now().time()
-
 def control():
     
     inverterValues = asyncio.run(id.datasetMain())
@@ -17,8 +15,9 @@ def control():
     except Exception as e:
         logging.error(f'Inverter Insert Failed. {e}')
 
-    # insert prices for the following day at 6pm - todo - review this!
-    if time(18, 0) <= current <= time(18, 10):
+    # insert prices for the following day at around 4pm - todo: review this!
+    current = datetime.now().time()
+    if time(16, 0) <= current <= time(16, 30):
         prices = []
         try:
             prices = asyncio.run(oa.mainReturnRates(0))
@@ -28,3 +27,6 @@ def control():
         dc.octopusInsert(prices)
 
     return inverterValues
+
+if __name__ == '__main__':
+    control()

@@ -6,7 +6,6 @@ from datetime import datetime
 
 database = 'marvin'
 server = 'tinyserver.database.windows.net'
-timestamp = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
 
 def octopusInsert(octopusDatasetValue: list) -> None:
     """
@@ -26,10 +25,12 @@ def octopusInsert(octopusDatasetValue: list) -> None:
     
     except Exception as e:
         print(f"Octopus database connection failed: {e}") 
+        logging.error(e)
         return None    
 
     cursor = connection.cursor()
 
+    timestamp = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
     sqlInsert = f"INSERT INTO OCTOPUS_PRICES VALUES ('{timestamp}', ?, ?, ?, ?)"
 
     try:
@@ -42,14 +43,21 @@ def octopusInsert(octopusDatasetValue: list) -> None:
                     dict['toDateTime']
                 ]
             
-            cursor.execute(sqlInsert, values)
-            connection.commit()
+            #make sure the value hasn't already been inserted
+            checkQuery = "SELECT 1 FROM OCTOPUS_PRICES WHERE [Datetime From] = ?"
+            cursor.execute(checkQuery, (dict['fromDateTime'],))
+            result = cursor.fetchone()
+            
+            if not result:
+                cursor.execute(sqlInsert, values)
+                connection.commit()
+
+            cursor.close()
+            connection.close()
 
     except Exception as e:
-        print(f"Octopus database insert failed: {e}")  
-
-    cursor.close()
-    connection.close()
+        print(f"Octopus database insert failed: {e}") 
+        logging.error(e)
 
 def inverterInsert(inverterDatasetValue: list) -> None:
     """
@@ -72,7 +80,7 @@ def inverterInsert(inverterDatasetValue: list) -> None:
         logging.error(e)
         return None
 
-    # Construct SQL INSERT statement
+    timestamp = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
     sqlInsert = f"INSERT INTO INVERTER_STATE VALUES ('{timestamp}', ?, ?, ?, ?, ?, ?)"
 
     try:
@@ -88,13 +96,20 @@ def inverterInsert(inverterDatasetValue: list) -> None:
                     dict['Grid Usage KwH'],
                     dict['House Load KwH']
                 ]
+            
+            #make sure the value hasn't already been inserted
+            checkQuery = "SELECT 1 FROM INVERTER_STATE WHERE [Data Timestamp] = ?"
+            cursor.execute(checkQuery, (dict['Data Timestamp'],))
+            result = cursor.fetchone()
 
-            cursor.execute(sqlInsert, values)
-            connection.commit()
+            if not result:
+                cursor.execute(sqlInsert, values)
+                connection.commit()
+
+            cursor.close()
+            connection.close()
 
     except Exception as e:
         print(f"Inverter database insert failed: {e}")  
         logging.error(e)
 
-    cursor.close()
-    connection.close()
