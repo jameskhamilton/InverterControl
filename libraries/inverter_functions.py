@@ -103,6 +103,7 @@ async def solisAPICall(resourceValue: str, bodyValue: str, headerValue: str) -> 
         conn.request(apiMethod, resourceValue, bodyValue, headerValue)
         response = conn.getresponse()
         data = response.read().decode('utf-8')
+        data = data.replace(',\n  }','}') #the json result is broken!
         if response.code >= 400:
             print(f'Error: {response.code} - {data}')
         else:
