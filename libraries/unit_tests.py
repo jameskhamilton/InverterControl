@@ -1,4 +1,5 @@
 import re
+import json
 
 def checkFormat(chargeTestValue: str) -> bool:
     """
@@ -13,3 +14,12 @@ def checkFormat(chargeTestValue: str) -> bool:
     )
 
     return bool(pattern.match(chargeTestValue))
+
+def checkJSONFormat(json_string):
+    try:
+        json_data = json.loads(json_string)
+        print("Valid JSON")
+        return json_data
+    except json.JSONDecodeError as e:
+        print("Invalid JSON:", e)
+        return None

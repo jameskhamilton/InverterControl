@@ -9,8 +9,8 @@ keyId,secretKey,_,password,username,inverterSn,inverterId = sf.secrets()
 controlResource = '/v2/api/control'
 loginResource = '/v2/api/login'
 
-chSt0 = '03:00'
-chEn0 = '08:00'
+chSt0 = '00:00'
+chEn0 = '00:00'
 dischSt0 = '00:00'
 dischEn0 = '00:00'
 chSt1 = '00:00'
